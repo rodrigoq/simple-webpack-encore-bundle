@@ -7,10 +7,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\WebpackEncoreBundle\Asset;
+namespace Simple\WebpackEncoreBundle\Asset;
 
-use Psr\Cache\CacheItemPoolInterface;
-use Symfony\WebpackEncoreBundle\Exception\EntrypointNotFoundException;
+use Simple\WebpackEncoreBundle\Exception\EntrypointNotFoundException;
 
 /**
  * Returns the CSS or JavaScript files needed for a Webpack entry.
@@ -27,17 +26,11 @@ class EntrypointLookup implements EntrypointLookupInterface, IntegrityDataProvid
 
     private $returnedFiles = [];
 
-    private $cache;
-
-    private $cacheKey;
-
     private $strictMode;
 
-    public function __construct(string $entrypointJsonPath, CacheItemPoolInterface $cache = null, string $cacheKey = null, bool $strictMode = true)
+    public function __construct(string $entrypointJsonPath, bool $strictMode = true)
     {
         $this->entrypointJsonPath = $entrypointJsonPath;
-        $this->cache = $cache;
-        $this->cacheKey = $cacheKey;
         $this->strictMode = $strictMode;
     }
 
@@ -109,14 +102,6 @@ class EntrypointLookup implements EntrypointLookupInterface, IntegrityDataProvid
             return $this->entriesData;
         }
 
-        if ($this->cache) {
-            $cached = $this->cache->getItem($this->cacheKey);
-
-            if ($cached->isHit()) {
-                return $this->entriesData = $cached->get();
-            }
-        }
-
         if (!file_exists($this->entrypointJsonPath)) {
             if (!$this->strictMode) {
                 return [];
@@ -132,10 +117,6 @@ class EntrypointLookup implements EntrypointLookupInterface, IntegrityDataProvid
 
         if (!isset($this->entriesData['entrypoints'])) {
             throw new \InvalidArgumentException(sprintf('Could not find an "entrypoints" key in the "%s" file', $this->entrypointJsonPath));
-        }
-
-        if ($this->cache) {
-            $this->cache->save($cached->set($this->entriesData));
         }
 
         return $this->entriesData;

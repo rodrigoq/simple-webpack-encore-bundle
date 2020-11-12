@@ -7,11 +7,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\WebpackEncoreBundle\Twig;
+namespace Simple\WebpackEncoreBundle\Twig;
 
-use Psr\Container\ContainerInterface;
-use Symfony\WebpackEncoreBundle\Asset\EntrypointLookupInterface;
-use Symfony\WebpackEncoreBundle\Asset\TagRenderer;
+use Simple\WebpackEncoreBundle\Asset\EntrypointLookup;
+use Simple\WebpackEncoreBundle\Asset\EntrypointLookupCollection;
+use Simple\WebpackEncoreBundle\Asset\EntrypointLookupInterface;
+use Simple\WebpackEncoreBundle\Asset\TagRenderer;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -19,8 +20,13 @@ final class EntryFilesTwigExtension extends AbstractExtension
 {
     private $container;
 
-    public function __construct(ContainerInterface $container)
+    private $tagRenderer = null;
+
+    public function __construct($container)
     {
+        if(!\is_array($container))
+            $container = ['_default' => $container];
+
         $this->container = $container;
     }
 
@@ -48,24 +54,38 @@ final class EntryFilesTwigExtension extends AbstractExtension
 
     public function renderWebpackScriptTags(string $entryName, string $packageName = null, string $entrypointName = '_default'): string
     {
+        if($packageName !== null) {
+           throw new \InvalidArgumentException('packageName not implemented');
+        }
         return $this->getTagRenderer()
             ->renderWebpackScriptTags($entryName, $packageName, $entrypointName);
     }
 
     public function renderWebpackLinkTags(string $entryName, string $packageName = null, string $entrypointName = '_default'): string
     {
+        if($packageName !== null) {
+           throw new \InvalidArgumentException('packageName not implemented');
+        }
         return $this->getTagRenderer()
             ->renderWebpackLinkTags($entryName, $packageName, $entrypointName);
     }
 
     private function getEntrypointLookup(string $entrypointName): EntrypointLookupInterface
     {
-        return $this->container->get('webpack_encore.entrypoint_lookup_collection')
-            ->getEntrypointLookup($entrypointName);
+        return new EntrypointLookup($this->container[$entrypointName]);
     }
 
     private function getTagRenderer(): TagRenderer
     {
-        return $this->container->get('webpack_encore.tag_renderer');
+        if($this->tagRenderer === null) {
+            $entrypointLookups = [];
+            foreach($this->container as $key => $container) {
+                $entrypointLookups[$key] = new EntrypointLookup($container);
+            }
+            $this->tagRenderer = new TagRenderer(
+                new EntrypointLookupCollection($entrypointLookups)
+            );
+        }
+        return $this->tagRenderer;
     }
 }

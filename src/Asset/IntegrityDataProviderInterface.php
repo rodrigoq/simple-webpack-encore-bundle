@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\WebpackEncoreBundle\Asset;
+namespace Simple\WebpackEncoreBundle\Asset;
 
 interface IntegrityDataProviderInterface
 {

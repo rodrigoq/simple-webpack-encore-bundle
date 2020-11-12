@@ -7,10 +7,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\WebpackEncoreBundle\Asset;
+namespace Simple\WebpackEncoreBundle\Asset;
 
-use Psr\Container\ContainerInterface;
-use Symfony\WebpackEncoreBundle\Exception\UndefinedBuildException;
+use Simple\WebpackEncoreBundle\Exception\UndefinedBuildException;
 
 /**
  * Aggregate the different entry points configured in the container.
@@ -25,7 +24,7 @@ class EntrypointLookupCollection implements EntrypointLookupCollectionInterface
 
     private $defaultBuildName;
 
-    public function __construct(ContainerInterface $buildEntrypoints, string $defaultBuildName = null)
+    public function __construct(array $buildEntrypoints, string $defaultBuildName = '_default')
     {
         $this->buildEntrypoints = $buildEntrypoints;
         $this->defaultBuildName = $defaultBuildName;
@@ -41,10 +40,10 @@ class EntrypointLookupCollection implements EntrypointLookupCollectionInterface
             $buildName = $this->defaultBuildName;
         }
 
-        if (!$this->buildEntrypoints->has($buildName)) {
+        if (!isset($this->buildEntrypoints[$buildName])) {
             throw new UndefinedBuildException(sprintf('The build "%s" is not configured', $buildName));
         }
 
-        return $this->buildEntrypoints->get($buildName);
+        return $this->buildEntrypoints[$buildName];
     }
 }

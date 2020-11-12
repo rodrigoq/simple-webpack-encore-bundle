@@ -7,10 +7,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\WebpackEncoreBundle\Asset;
+namespace Simple\WebpackEncoreBundle\Asset;
 
-use Symfony\Component\Asset\Packages;
-use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -20,32 +18,16 @@ class TagRenderer implements ResetInterface
 {
     private $entrypointLookupCollection;
 
-    private $packages;
-
     private $defaultAttributes;
 
     private $renderedFiles = [];
 
-    public function __construct(
-        $entrypointLookupCollection,
-        Packages $packages,
-        array $defaultAttributes = []
-    ) {
-        if ($entrypointLookupCollection instanceof EntrypointLookupInterface) {
-            @trigger_error(sprintf('The "$entrypointLookupCollection" argument in method "%s()" must be an instance of EntrypointLookupCollection.', __METHOD__), E_USER_DEPRECATED);
-
-            $this->entrypointLookupCollection = new EntrypointLookupCollection(
-                new ServiceLocator(['_default' => function () use ($entrypointLookupCollection) {
-                    return $entrypointLookupCollection;
-                }])
-            );
-        } elseif ($entrypointLookupCollection instanceof EntrypointLookupCollection) {
+    public function __construct($entrypointLookupCollection, array $defaultAttributes = []) {
+        if ($entrypointLookupCollection instanceof EntrypointLookupCollection) {
             $this->entrypointLookupCollection = $entrypointLookupCollection;
         } else {
             throw new \TypeError('The "$entrypointLookupCollection" argument must be an instance of EntrypointLookupCollection.');
         }
-
-        $this->packages = $packages;
         $this->defaultAttributes = $defaultAttributes;
 
         $this->reset();
@@ -53,6 +35,9 @@ class TagRenderer implements ResetInterface
 
     public function renderWebpackScriptTags(string $entryName, string $packageName = null, string $entrypointName = '_default'): string
     {
+        if($packageName !== null) {
+           throw new \InvalidArgumentException('packageName not implemented');
+        }
         $scriptTags = [];
         $entryPointLookup = $this->getEntrypointLookup($entrypointName);
         $integrityHashes = ($entryPointLookup instanceof IntegrityDataProviderInterface) ? $entryPointLookup->getIntegrityData() : [];
@@ -78,6 +63,9 @@ class TagRenderer implements ResetInterface
 
     public function renderWebpackLinkTags(string $entryName, string $packageName = null, string $entrypointName = '_default'): string
     {
+        if($packageName !== null) {
+           throw new \InvalidArgumentException('packageName not implemented');
+        }
         $scriptTags = [];
         $entryPointLookup = $this->getEntrypointLookup($entrypointName);
         $integrityHashes = ($entryPointLookup instanceof IntegrityDataProviderInterface) ? $entryPointLookup->getIntegrityData() : [];
@@ -127,14 +115,12 @@ class TagRenderer implements ResetInterface
 
     private function getAssetPath(string $assetPath, string $packageName = null): string
     {
-        if (null === $this->packages) {
-            throw new \Exception('To render the script or link tags, run "composer require symfony/asset".');
+        if($packageName !== null) {
+           throw new \InvalidArgumentException('packageName not implemented');
         }
 
-        return $this->packages->getUrl(
-            $assetPath,
-            $packageName
-        );
+        //TODO: check if this always work.
+        return $assetPath;
     }
 
     private function getEntrypointLookup(string $buildName): EntrypointLookupInterface

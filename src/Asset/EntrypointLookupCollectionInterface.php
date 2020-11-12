@@ -7,9 +7,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\WebpackEncoreBundle\Asset;
+namespace Simple\WebpackEncoreBundle\Asset;
 
-use Symfony\WebpackEncoreBundle\Exception\UndefinedBuildException;
+use Simple\WebpackEncoreBundle\Exception\UndefinedBuildException;
 
 interface EntrypointLookupCollectionInterface
 {

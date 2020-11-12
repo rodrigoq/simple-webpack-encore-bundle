@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\WebpackEncoreBundle\Exception;
+namespace Simple\WebpackEncoreBundle\Exception;
 
 class EntrypointNotFoundException extends \InvalidArgumentException
 {
