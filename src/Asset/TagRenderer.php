@@ -33,10 +33,20 @@ class TagRenderer implements ResetInterface
         $this->reset();
     }
 
-    public function renderWebpackScriptTags(string $entryName, string $packageName = null, string $entrypointName = '_default'): string
+    public function renderWebpackScriptTagsWithBaseUrl(string $entryName, string $baseUrl = '', string $entrypointName = '_default'): string
+    {
+        return $this->renderWebpackScriptTags($entryName, null, $entrypointName, $baseUrl);
+    }
+
+    public function renderWebpackLinkTagsWithBaseUrl(string $entryName, string $baseUrl = null, string $entrypointName = '_default'): string
+    {
+        return $this->renderWebpackLinkTags($entryName, null, $entrypointName, $baseUrl);
+    }
+
+    public function renderWebpackScriptTags(string $entryName, string $packageName = null, string $entrypointName = '_default', string $baseUrl = ''): string
     {
         if($packageName !== null) {
-           throw new \InvalidArgumentException('packageName not implemented');
+            throw new \InvalidArgumentException('packageName not implemented');
         }
         $scriptTags = [];
         $entryPointLookup = $this->getEntrypointLookup($entrypointName);
@@ -52,7 +62,7 @@ class TagRenderer implements ResetInterface
 
             $scriptTags[] = sprintf(
                 '<script %s></script>',
-                $this->convertArrayToAttributes($attributes)
+                $this->convertArrayToAttributes($attributes, $baseUrl)
             );
 
             $this->renderedFiles['scripts'][] = $attributes['src'];
@@ -61,10 +71,10 @@ class TagRenderer implements ResetInterface
         return implode('', $scriptTags);
     }
 
-    public function renderWebpackLinkTags(string $entryName, string $packageName = null, string $entrypointName = '_default'): string
+    public function renderWebpackLinkTags(string $entryName, string $packageName = null, string $entrypointName = '_default', string $baseUrl = ''): string
     {
         if($packageName !== null) {
-           throw new \InvalidArgumentException('packageName not implemented');
+            throw new \InvalidArgumentException('packageName not implemented');
         }
         $scriptTags = [];
         $entryPointLookup = $this->getEntrypointLookup($entrypointName);
@@ -81,7 +91,7 @@ class TagRenderer implements ResetInterface
 
             $scriptTags[] = sprintf(
                 '<link %s>',
-                $this->convertArrayToAttributes($attributes)
+                $this->convertArrayToAttributes($attributes, $baseUrl)
             );
 
             $this->renderedFiles['styles'][] = $attributes['href'];
@@ -116,7 +126,7 @@ class TagRenderer implements ResetInterface
     private function getAssetPath(string $assetPath, string $packageName = null): string
     {
         if($packageName !== null) {
-           throw new \InvalidArgumentException('packageName not implemented');
+            throw new \InvalidArgumentException('packageName not implemented');
         }
 
         //TODO: check if this always work.
@@ -128,14 +138,22 @@ class TagRenderer implements ResetInterface
         return $this->entrypointLookupCollection->getEntrypointLookup($buildName);
     }
 
-    private function convertArrayToAttributes(array $attributesMap): string
+    private function convertArrayToAttributes(array $attributesMap, string $baseUrl = ''): string
     {
         return implode(' ', array_map(
-            function ($key, $value) {
-                return sprintf('%s="%s"', $key, htmlentities($value));
+            function ($key, $value) use ($baseUrl) {
+                return sprintf('%s="%s"', $key, $this->getValue($key, $baseUrl, $value));
             },
             array_keys($attributesMap),
             $attributesMap
         ));
+    }
+
+    private function getValue($key, $baseUrl, $value) : string
+    {
+        if($key == 'src' || $key == 'href') {
+            return htmlentities($baseUrl . $value);
+        }
+        return htmlentities($value);
     }
 }

@@ -37,6 +37,9 @@ final class EntryFilesTwigExtension extends AbstractExtension
             new TwigFunction('encore_entry_css_files', [$this, 'getWebpackCssFiles']),
             new TwigFunction('encore_entry_script_tags', [$this, 'renderWebpackScriptTags'], ['is_safe' => ['html']]),
             new TwigFunction('encore_entry_link_tags', [$this, 'renderWebpackLinkTags'], ['is_safe' => ['html']]),
+            // New custom functions
+            new TwigFunction('encore_entry_script_tags_with_baseurl', [$this, 'renderWebpackScriptTagsWithBaseUrl'], ['is_safe' => ['html']]),
+            new TwigFunction('encore_entry_link_tags_with_baseurl', [$this, 'renderWebpackLinkTagsWithBaseUrl'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -52,19 +55,31 @@ final class EntryFilesTwigExtension extends AbstractExtension
             ->getCssFiles($entryName);
     }
 
+    public function renderWebpackScriptTagsWithBaseUrl(string $entryName, string $baseUrl = '', string $entrypointName = '_default'): string
+    {
+        return $this->getTagRenderer()
+            ->renderWebpackScriptTagsWithBaseUrl($entryName, $baseUrl, $entrypointName);
+    }
+
     public function renderWebpackScriptTags(string $entryName, string $packageName = null, string $entrypointName = '_default'): string
     {
         if($packageName !== null) {
-           throw new \InvalidArgumentException('packageName not implemented');
+            throw new \InvalidArgumentException('packageName not implemented');
         }
         return $this->getTagRenderer()
             ->renderWebpackScriptTags($entryName, $packageName, $entrypointName);
     }
 
+    public function renderWebpackLinkTagsWithBaseUrl(string $entryName, string $baseUrl = '', string $entrypointName = '_default'): string
+    {
+        return $this->getTagRenderer()
+            ->renderWebpackLinkTagsWithBaseUrl($entryName, $baseUrl, $entrypointName);
+    }
+
     public function renderWebpackLinkTags(string $entryName, string $packageName = null, string $entrypointName = '_default'): string
     {
         if($packageName !== null) {
-           throw new \InvalidArgumentException('packageName not implemented');
+            throw new \InvalidArgumentException('packageName not implemented');
         }
         return $this->getTagRenderer()
             ->renderWebpackLinkTags($entryName, $packageName, $entrypointName);

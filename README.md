@@ -40,4 +40,19 @@ No need for yaml configuration file.
 
 Check readme on the [original repo](https://github.com/symfony/webpack-encore-bundle).
 
+## Changes
+
+Added two new twig functions for full URL or directory prefixing, you can have
+a full path or different paths configured in php not needing for code on your
+javascript configuration file.
+
+```twig
+    {{ encore_entry_script_tags_with_baseurl('app', 'https://yoursite.com') }}
+    {{ encore_entry_link_tags_with_baseurl('app', 'https://yoursite.com') }}
+
+    {# or any directory prefix #}
+
+    {{ encore_entry_script_tags_with_baseurl('app', '/a/different/path') }}
+    {{ encore_entry_link_tags_with_baseurl('app', '/a/different/path') }}
+```
 
